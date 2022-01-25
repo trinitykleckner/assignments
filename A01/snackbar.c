@@ -30,16 +30,21 @@ int main() {
   int selection;
 
   printf("Welcome to my snack bar.\n");
-  printf("\nHow much money do you have?  \n");
-  scanf("%g", money);
+  printf("\nHow much money do you have?  ");
+  scanf("%g", &money);
   printItems(snkArray);
-  printf("\nWhat would you like to buy? [0,1,2]  \n");
-  scanf("%d", selection);
-  if(snkArray[selection].quant > 0){
-    printf("\nYou bought %s\n", snkArray[selection].name);
-    printf("You have $%g left", money-snkArray[selection].cost);
+  printf("\nWhat would you like to buy? [0,1,2]  ");
+  scanf("%d", &selection);
+  if(snkArray[selection].cost > money){
+    printf("Sorry, you do not have enough money to buy %s\n",snkArray[selection].name);
   } else {
-    printf("Sorry, there are no more %s in stock",snkArray[selection].name); 
+    if(snkArray[selection].quant > 0){
+      printf("\nYou bought %s\n", snkArray[selection].name);
+      float newMoney = money - snkArray[selection].cost;
+      printf("You have $%g left\n",newMoney);
+    } else {
+      printf("Sorry, there are no more %s in stock\n",snkArray[selection].name); 
+    }
   }
   return 0;
 }
