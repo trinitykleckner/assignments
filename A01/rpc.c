@@ -4,13 +4,15 @@
 #include <time.h>
 
 int checkPlayerInput(char* input);
-char* choiceToWord(int choice);
+char* choiceToWord(int choice, char* options[]);
 char* printOutcome(char aiChoice[9], char plyrChoice[9]);
 int getWinner(char aiChoice[9], char plyrChoice[9]);
 void printWinner(int aiScore, int plyrScore);
 
 int main() {
   srand(time(0));
+  char* options[3] = {"rock","paper","scissors"};
+
   int rounds;
   printf("Welcome to Rock, Paper, Scissors! \nHow many rounds do you want to play?  ");
   scanf("%d", &rounds);
@@ -32,7 +34,7 @@ int main() {
       printf("invalid input- you must choose rock, paper, or scissors\n");
       return 0;
     }
-    aiChoiceWord = choiceToWord(aiChoice);
+    aiChoiceWord = choiceToWord(aiChoice, options);
     printf("AI chooses %s\n", aiChoiceWord);
 
     char* winner = printOutcome(aiChoiceWord, plyrChoice);
@@ -56,8 +58,7 @@ int checkPlayerInput(char* input){
   return 1;
 }
 
-char *choiceToWord(int choice){
-  char* options[3] = {"rock", "paper", "scissors"};
+char *choiceToWord(int choice, char* options[]){
   for(int i = 0; i<3; i++){
     if(i == choice){
       return options[i];
