@@ -14,6 +14,7 @@ int main() {
   char* options[3] = {"rock","paper","scissors"};
 
   int aiScore = 0;
+  int plyrScore = 0;
   int plyrChoice = 0;
 
   int rounds;
@@ -44,7 +45,7 @@ int main() {
     if(strcmp(aiChoiceWord, winner) == 0){
       aiScore ++;
     } else if(strcmp(plyrChoice, winner)==0){
-      plyrScore++;
+      plyrScore ++;
     }
 
     //update score 
