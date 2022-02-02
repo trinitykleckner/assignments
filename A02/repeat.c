@@ -1,9 +1,16 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 int main() {
 //need to use malloc and free
-  char inpString[32];
+  char* inpString = malloc(sizeof(char) * 32);
   int inpInt;
+
+  if(inpString==NULL){
+    printf("malloc unsuccessful");
+    return 1;
+  }
+
 
   printf("Enter a word: ");
   scanf("%s", inpString);
@@ -14,6 +21,9 @@ int main() {
   for(int i=0; i<inpInt; i++){
     printf("%s", inpString);
   }
+  printf("\n");
 
+  free(inpString);
+  inpString = NULL;
   return 0;
 }
