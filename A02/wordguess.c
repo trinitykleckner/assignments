@@ -28,7 +28,7 @@ int main(){
    while(fgets(word,sizeof(char)*32,fp)){
      i++;
      if(i==randNum){
-       printf("%s",word);
+      // printf("%s",word);
        break;
      }
    }
