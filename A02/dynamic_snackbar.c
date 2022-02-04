@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 struct snack {
   char name[32];
@@ -28,7 +29,7 @@ int main() {
     buildSnack(tempSnack);
   }
 
-  printf("\nWelcome to my snackbar\n");  
+  printf("\n\nWelcome to my snackbar\n");  
   printItems(snkArr, numOfSnacks);
   printf("\n");
 
@@ -56,6 +57,6 @@ void buildSnack(struct snack* temp){
 
 void printItems(struct snack* arr, int num){
   for(int i=0; i<num;i++){
-    printf("\n%d) %s \t cost: $%f \t quantity: %d", i, arr[i].name, arr[i].cost, arr[i].quantity);
+    printf("\n%d) %s \t cost: $%0.2f \t quantity: %d", i, arr[i].name, arr[i].cost, arr[i].quantity);
   }
 }

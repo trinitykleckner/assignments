@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 int main() {
-//need to use malloc and free
+
   char* inpString = malloc(sizeof(char) * 32);
   int inpInt;
 
