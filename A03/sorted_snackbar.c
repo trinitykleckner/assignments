@@ -2,7 +2,7 @@
 // sorted_snackbar.c
 // CS223 - Spring 2022
 // Ask the user for a list of snacks and store them in alphabetical order
-// Name:
+// Name: Trinity Kleckner
 //
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,17 +27,13 @@ void printItems(struct snack* list);
 
 struct snack* insert_sorted(struct snack* snacks,
   const char* name, int quantity, float cost) {
-    printf("in insert sorted\n");
     //creating a snack
     struct snack* thisNode = malloc(sizeof(struct snack));
     strcpy(thisNode->name, name);
     thisNode->quantity = quantity;
     thisNode->cost = cost;
 
-    printf("%s\n",thisNode->name);
-
     if(snacks->next == NULL){ //if snack goes at the begining
-      printf("snacks is null");
       snacks->next = thisNode;
       thisNode->next = NULL;
     } else {
@@ -58,19 +54,20 @@ struct snack* insert_sorted(struct snack* snacks,
       thisNode->next = NULL;
       return snacks;
     }
-    printf("HERE\n");
-    struct snack* n = snacks;
-    while(n->next != NULL){
-      printf("%s",n->name);
-      n = n->next;
-    }
     return snacks;
 }
 
 // Delete (e.g. free) all nodes in the given list of snacks
 // Param snacks: the first node in the list (NULL if empty)
 void clear(struct snack* snacks) {
-  //while thisSnack != null?
+  struct snack* allButHead = snacks->next;
+  while(allButHead->next != NULL){
+    struct snack* thisNode = allButHead;
+    allButHead = thisNode->next;
+    free(thisNode);
+    thisNode = NULL;
+    printf("here\n" );
+  }
 }
 
 int main() {
@@ -104,6 +101,7 @@ int main() {
   }
 
   printf("welcome to my sorted snackbar!");
+//  clear(snackList);
   printItems(snackList);
 
   return 0;
