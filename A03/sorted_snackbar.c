@@ -27,30 +27,44 @@ void printItems(struct snack* list);
 
 struct snack* insert_sorted(struct snack* snacks,
   const char* name, int quantity, float cost) {
-    //creating the snack
+    printf("in insert sorted\n");
+    //creating a snack
     struct snack* thisNode = malloc(sizeof(struct snack));
     strcpy(thisNode->name, name);
     thisNode->quantity = quantity;
     thisNode->cost = cost;
 
-    //adding it to the list
-    if(snacks == NULL){
-      snacks = thisNode;
+    printf("%s\n",thisNode->name);
+
+    if(snacks->next == NULL){ //if snack goes at the begining
+      printf("snacks is null");
+      snacks->next = thisNode;
       thisNode->next = NULL;
     } else {
-      struct snack* checking = snacks;
-      while(checking->next != NULL){
-        if(strcmp(thisNode->name,checking->name) <= 0){ //need something for same name?
+      struct snack* prev = snacks;
+      struct snack* checking = snacks->next;
+      while(checking != NULL){
+        if(strcmp(thisNode->name,checking->name) <= 0){ //if snack goes in the middle
           thisNode->next = checking;
-          snacks = thisNode;
-          break;
+          prev->next = thisNode;
+          return snacks;
         } else {
+          prev = prev->next;
           checking = checking->next;
         }
+        //need if node goes on the end
       }
+      prev->next = thisNode;
+      thisNode->next = NULL;
+      return snacks;
     }
-
-  return snacks;
+    printf("HERE\n");
+    struct snack* n = snacks;
+    while(n->next != NULL){
+      printf("%s",n->name);
+      n = n->next;
+    }
+    return snacks;
 }
 
 // Delete (e.g. free) all nodes in the given list of snacks
@@ -64,12 +78,15 @@ int main() {
   printf("Enter a number of snacks: ");
   scanf("%d", &numOfSnacks);
 
-  struct snack *head = NULL;
-  head = malloc(sizeof(struct snack));
-  if (head == NULL){
+  struct snack *snackList = NULL;
+  snackList = malloc(sizeof(struct snack));
+  if (snackList == NULL){
     printf("Malloc unsuccessful");
     return 1;
   }
+
+  strcpy(snackList->name, "header");
+  snackList->next = NULL;
 
   for(int i=0; i<numOfSnacks; i++){
     char thisName[32];
@@ -83,23 +100,24 @@ int main() {
     printf("\nEnter a quantity: ");
     scanf("%d", &thisQuant);
 
-    head = insert_sorted(head,thisName,thisQuant,thisCost);
-    printf("%s\n",head->name );
+    snackList = insert_sorted(snackList,thisName,thisQuant,thisCost);
   }
 
-  printf("here %s",head->name);
-  printItems(head);
+  printf("welcome to my sorted snackbar!");
+  printItems(snackList);
 
   return 0;
 }
 
 void printItems(struct snack* list){
-  struct snack* node = list;
+  struct snack* node = list->next;
   int counter = 0;
-  while(node != NULL){
+  while(node->next != NULL){
     printf("\n%d) %s \t cost: $%0.2f \t quantity: %d", counter,
     node->name, node->cost, node->quantity);
     node = node->next;
     counter ++;
   }
+  printf("\n%d) %s \t cost: $%0.2f \t quantity: %d\n", counter,
+  node->name, node->cost, node->quantity);
 }
