@@ -48,7 +48,6 @@ struct snack* insert_sorted(struct snack* snacks,
           prev = prev->next;
           checking = checking->next;
         }
-        //need if node goes on the end
       }
       prev->next = thisNode;
       thisNode->next = NULL;
