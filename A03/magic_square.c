@@ -16,6 +16,13 @@ int main() {
   int cols;
   scanf(" %d %d", &rows, &cols);
 
+  if(rows*cols == 1){
+    int onlyVal;
+    scanf(" %d", &onlyVal);
+    printf("this matrix is magical!!! its constant is %d\n",onlyVal);
+    return 0;
+  }
+
   int *val = (int *) malloc(sizeof(int)*rows*cols);
   if (val == NULL) {
     printf("malloc error\n");
@@ -28,6 +35,7 @@ int main() {
     scanf(" %d", &tempVal);
     val[i] = tempVal;
   }
+
 
   //getting the sum of the main diagonal
   int sum = 0;
@@ -45,7 +53,7 @@ int main() {
   if(sum == thisSum){
     thisSum = 0;
   } else {
-    printf("this matrix is not magical :(\n");
+    printf("this square is not magical :(\n");
     return 1;
   }
 
@@ -57,7 +65,7 @@ int main() {
     if(thisSum == sum){
       thisSum = 0;
     } else {
-      printf("M is not magical :(\n");
+      printf("this square is not magical :(\n");
       return 1;
     }
   }
@@ -70,7 +78,7 @@ int main() {
     if(thisSum == sum){
       thisSum = 0;
     } else {
-      printf("M is not magical :(\n");
+      printf("this square is not magical :(\n");
       return 1;
     }
   }
