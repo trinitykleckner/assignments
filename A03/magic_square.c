@@ -19,7 +19,7 @@ int main() {
   if(rows*cols == 1){
     int onlyVal;
     scanf(" %d", &onlyVal);
-    printf("this matrix is magical!!! its constant is %d\n",onlyVal);
+    printf("%d\nthis matrix is magical!!! its constant is %d\n",onlyVal,onlyVal);
     return 0;
   }
 
@@ -34,6 +34,13 @@ int main() {
   for(int i=0; i<rows*cols; i++){
     scanf(" %d", &tempVal);
     val[i] = tempVal;
+    printf("%d ",tempVal);
+    if(tempVal < 10){
+      printf(" ");
+    }
+    if((i+1)%rows == 0){
+      printf("\n");
+    }
   }
 
 

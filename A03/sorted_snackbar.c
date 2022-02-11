@@ -59,14 +59,15 @@ struct snack* insert_sorted(struct snack* snacks,
 // Delete (e.g. free) all nodes in the given list of snacks
 // Param snacks: the first node in the list (NULL if empty)
 void clear(struct snack* snacks) {
-  struct snack* current = snacks->next;
+  struct snack* this = snacks->next;
   struct snack* next;
 
-  while(current != NULL){
-    next = current->next;
-    free(current);
-    current = next;
+  while(this != NULL){
+    next = this->next;
+    free(this);
+    this = next;
   }
+  free(this);
   snacks->next = NULL;
 }
 
@@ -107,6 +108,8 @@ int main() {
   } else {
     printItems(snackList);
   }
+  free(snackList);
+  snackList = NULL;
   return 0;
 }
 
