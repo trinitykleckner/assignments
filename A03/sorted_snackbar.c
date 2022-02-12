@@ -108,6 +108,14 @@ int main() {
   } else {
     printItems(snackList);
   }
+  struct snack* next;
+  clear(snackList);
+  /*
+  while(snackList != NULL){
+    next = snackList->next;
+    free(snackList);
+    snackList = next;
+  } */
   free(snackList);
   snackList = NULL;
   return 0;

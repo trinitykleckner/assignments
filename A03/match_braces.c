@@ -36,38 +36,22 @@ struct node* push(char sym, int line, int col, struct node* top) {
 // Returns the new top of the stack
 struct node* pop(struct node* top) {
   struct node* oldTop = top;
-  struct node* newTop = top->next;
+  top = top->next;
   free(oldTop);
-  return newTop;
+  oldTop = NULL;
+  return top;
 }
+
 
 // Delete (e.g. free) all nodes in the given stack
 // Param top: the top node of the stack (NULL if empty)
-void clear2(struct node* top) {
-  struct node* current = top;
-  struct node* next;
-
-  while(current != NULL){
-    if(current==NULL){
-      break;
-    }
-    next = current->next;
-    printf("freeing %c",current->sym);
-    free(current);
-    current = next;
-  }
-  top = NULL;
-}
-
 void clear(struct node* top){
-  struct node* this = top->next;
   struct node* next;
-  while(this != NULL){
-    next = this->next;
-    free(this);
-    this = next;
+  while(top != NULL){
+    next = top->next;
+    free(top);
+    top = next;
   }
-  free(this);
   top = NULL;
 }
 
@@ -90,13 +74,8 @@ int main(int argc, char* argv[]) {
       return 1;
   }
 
-  //creating the stack, and initializing first node to null
-  struct node* stack = (struct node*) malloc(sizeof(struct node));
-  if (stack == NULL) {
-      printf("malloc unsuccessful");
-      return 1;
-  }
-  stack = NULL;
+  //initializing stack to null
+  struct node* stack = NULL;
 
   //iterating by char through the file, pushing and popping at {}
   int rowCounter = 1;
@@ -123,13 +102,14 @@ int main(int argc, char* argv[]) {
     }
     colCounter ++;
   }
-  //clear(stack);
+
   //any braces left on the stack are unmatched
   while(stack != NULL){
     printf("Unmatched brace on line %d, column %d\n",stack->linenum,stack->colnum);
     stack = pop(stack);
   }
-
+  clear(stack);
+  fclose(fp);
   free(stack);
   stack = NULL;
   return 0;
