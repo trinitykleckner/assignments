@@ -29,7 +29,7 @@ struct ppm_pixel* read_ppm(const char* filename, int* w, int* h) {
   }
   sscanf(c, " %d %d", w, h);
   fscanf(fp, " %d", &maxColor);
-  //printf("magic number: %s\nrows: %d\ncols: %d\n",magicNumber,*w,*h);
+  //as  printf("magic number: %s\nrows: %d\ncols: %d\n",magicNumber,*w,*h);
 
   struct ppm_pixel* image = malloc((*w)*(*h)*sizeof(struct ppm_pixel));
   for(int r=0; r<*h; r++){
