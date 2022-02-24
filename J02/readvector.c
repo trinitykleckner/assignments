@@ -17,11 +17,11 @@ float* readvector(const char* filename, int *size) {
   *size = atoi(buf);
 
   float *vector = malloc(sizeof(float) * (*size));
-  int i = 0;
-  while (fgets(buf, 33, infile) != NULL) {
-    vector[i++] = (float) atof(buf);
-  }
 
+  for(int i=0; i<(*size); i++){
+    fgets(buf, 33, infile);
+    vector[i] = (float) atof(buf);
+  }
   fclose(infile);
   return vector;
 }
