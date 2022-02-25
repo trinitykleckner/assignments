@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "read_ppm.h"
 
 // TODO: Implement this function
@@ -26,35 +27,38 @@ struct ppm_pixel* read_ppm(const char* filename, int* w, int* h) {
     fgets(c, sizeof(char)*100, fp);
   }
   sscanf(c, " %d %d", w, h);
-  fscanf(fp, " %d", &maxColor);
+  fscanf(fp, " %d ", &maxColor);
 
-  struct ppm_pixel* image = malloc((*w)*(*h)*sizeof(struct ppm_pixel));
+  struct ppm_pixel* image;
+  image = malloc((*w)*(*h)*sizeof(struct ppm_pixel));
   if (image == NULL){
     printf("malloc failed");
-  return NULL;
+    return NULL;
   }
+  fread(image, sizeof(struct ppm_pixel), (*h)*(*w), fp);
 
-  char* file = malloc((*w)*(*h)*sizeof(struct ppm_pixel));
-  //fread(file, 100, 1, fp);
-  //printf("%c\n", file[0]);
-  for(int r=0; r<*h; r++){
-    for(int c=0; c<*w; c++){
-      struct ppm_pixel thisPixel;
-      fread(&thisPixel, sizeof(struct ppm_pixel), 1, fp);
-      printf("%d\n", thisPixel.blue);
-      image[r*(*w)+c] =thisPixel;
-    }
-  }
-
-  free(file);
-  file = NULL;
   fclose(fp);
-  return NULL;
+  fp = NULL;
+  return image;
 }
 
 // TODO: Implement this function
 // Feel free to change the function signature if you prefer to implement an
 // array of arrays
 extern void write_ppm(const char* filename, struct ppm_pixel* pxs, int w, int h) {
+  //srand(time(0));
+  for(int i=0; i<w*h; i++){
+    pxs[i].red = (pxs[i].red ^ pxs[i].green) <<(rand()%1);
+    pxs[i].green = pxs[i].green && (rand()%10);
+    pxs[i].blue = pxs[i].blue & pxs[i].red;
+  }
+  FILE* fp;
+  fp = fopen(filename,"wb");
+  char* toAdd = malloc(sizeof(char)*1000);
+  sprintf(toAdd, "P6\n%d %d\n255\n", w, h);
+  fwrite(toAdd, sizeof(int), 4, fp);
+  fwrite(pxs, sizeof(struct ppm_pixel), w*h, fp);
 
+  free(toAdd);
+  fclose(fp);
 }
