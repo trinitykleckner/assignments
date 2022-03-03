@@ -19,6 +19,23 @@ int main(int argc, char** argv) {
   struct ppm_pixel* image = read_ppm(filename,&rows,&cols);
   printf("Reading %s with width %d and height %d\n", filename, rows, cols);
 
+  int j = 10;
+  for(int i=0; i<w*h; i++){
+    if(j%10==0){
+      image[i].red = (image[i].red ^ image[i].green) <<(rand()%1);
+      image[i].green = image[i].green && (rand()%10);
+      image[i].blue = image[i].blue & image[i].red;
+    } else {
+      image[i].red = 0;
+      image[i].green = (image[i].red ^ image[i].green) <<(rand()%1);
+      image[i].blue = image[i].green && (rand()%10);
+    }
+    if(i%10 == 0){
+      j++;
+    }
+  }
+
+
   write_ppm(newfilename,image,rows,cols);
   printf("Writing file %s\n", newfilename);
 
