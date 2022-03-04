@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include "read_ppm.h"
 
-char* decode(char* encoded, int len);
+int getMessage(struct ppm_pixel* image, int rows, int cols, char* message);
+void decode(char* encoded, char* empty, int len);
 
 int main(int argc, char** argv) {
   int rows;
@@ -18,18 +19,39 @@ int main(int argc, char** argv) {
   struct ppm_pixel* image = read_ppm(filename,&rows,&cols);
   printf("Reading %s with width %d and height %d\n", filename, rows, cols);
   printf("Max number of characters in the image: %d\n", (rows*cols*3)/8);
+
   char* message;
-  message = malloc(sizeof(char)*rows*cols*3);
+  message = malloc((sizeof(char)*rows*cols*3)+8);
   if (message == NULL){
     printf("malloc failed");
     return 1;
   }
-  //int i = 0;
+  int size;
+  size = getMessage(image, rows, cols, message);
 
+  char* decoded;
+  decoded = malloc((sizeof(char)*size));
+  if (decoded == NULL){
+    printf("malloc failed");
+    return 1;
+  }
+  decode(message, decoded, size);
+
+  printf("%s\n", decoded);
+
+  free(image);
+  free(message);
+  free(decoded);
+  image = NULL;
+  message = NULL;
+  decoded = NULL;
+  return 0;
+}
+
+int getMessage(struct ppm_pixel* image, int rows, int cols, char* message){
+  //int i = 0;
   //while(val.red != '\0'){
   for(int i=0; i<rows*cols; i++){
-    printf("Red: %d\nGreen: %d\nBlue: %d\n",image[i].red,image[i].blue,image[i].green);
-
     if(image[i].red%2 == 0){
       message[i*3] = '0';
     } else {
@@ -46,7 +68,6 @@ int main(int argc, char** argv) {
       message[i*3+2] = '1';
     }
     //i++;
-
   }
 
   int size = rows*cols*3;
@@ -55,21 +76,16 @@ int main(int argc, char** argv) {
     size++;
   }
   message[size] = '\0';
-
-  printf("%s\n",message);
-  return 0;
+  return size;
 }
 
-/*
-char* decode(char* encoded, int len){
-  char* decoded[len];
-  int counter = 0;
-  for(int i=0; i<len/8; i++){
-    char* thisChar[9];
+void decode(char* encoded, char* empty, int len){
+  int numChars = len/8;
+  for(int i=0; i<numChars; i++){
+    char thisChar[9];
     for(int j=0; j<8; j++){
-      strcat(*thisChar, encoded[(counter*8)+1]);
+      thisChar[j] = encoded[(i*8)+j];
     }
-    char c = strtol(thisChar, 0, 2);
-    strcat(*decoded,c);
-    counter++;
-} */
+    empty[i] = strtol(thisChar, 0, 2);
+  }
+}

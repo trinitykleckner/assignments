@@ -45,30 +45,17 @@ struct ppm_pixel* read_ppm(const char* filename, int* w, int* h) {
 // Feel free to change the function signature if you prefer to implement an
 // array of arrays
 extern void write_ppm(const char* filename, struct ppm_pixel* pxs, int w, int h) {
-  int j = 10;
-  for(int i=0; i<w*h; i++){
-    if(j%10==0){
-      pxs[i].red = (pxs[i].red ^ pxs[i].green) <<(rand()%1);
-      pxs[i].green = pxs[i].green && (rand()%10);
-      pxs[i].blue = pxs[i].blue & pxs[i].red;
-    } else {
-      pxs[i].red = 0;
-      pxs[i].green = (pxs[i].red ^ pxs[i].green) <<(rand()%1);
-      pxs[i].blue = pxs[i].green && (rand()%10);
-    }
-    if(i%10 == 0){
-      j++;
-    }
-  }
+  FILE* fp = NULL;
+  fp = fopen(filename, "w+");
 
-
-  FILE* fp;
-  fp = fopen(filename,"wb");
-  char* toAdd = malloc(sizeof(char)*1000);
-  sprintf(toAdd, "P6\n%d %d\n255\n", w, h);
-  fwrite(toAdd, sizeof(int), 4, fp);
-  fwrite(pxs, sizeof(struct ppm_pixel), w*h, fp);
-
-  free(toAdd);
+  fputs("P6\n", fp);
+  fprintf(fp, "%d %d\n", w, h);
+  fputs("225\n", fp);
   fclose(fp);
+
+  fp = fopen(filename, "ab");
+  fwrite(pxs, sizeof(struct ppm_pixel), h*w, fp);
+  fclose(fp);
+  fp=NULL;
+
 }
