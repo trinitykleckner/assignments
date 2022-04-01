@@ -9,7 +9,7 @@ int main (int argc, char* argv[]) {
   printf("The initial top of the heap is %p\n",initial);
 
   int *p;
-  for(int i=0; i<5; i++){
+  for(int i=0; i<10; i++){
     p = malloc(sizeof(int)*25);
     free(p);
     p = NULL;

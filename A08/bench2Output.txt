@@ -1,35 +1,3 @@
-= Hardware specifications
-
-3.1 Where did your run your tests? A laptop, or goldengate?
-laptop
-
-3.2 What are the performance specifications of the machine: number and speed of
-processors, size of RAM? (use `lscpu` and `free -m`)
-8 cpus @ 1.30GHz, 32gb of RAM
-
-
-
-= Allocations
-
-In `simple.c`, where does the increase in 1040 bytes come from?
-Why is the value 1040 bytes?
-I got x1018 or 4120 bytes. As we discussed
-
-How many bytes does `mylloc_list.c` allocate when the program ends? Explain why
-this amount makes sense.
-4244 bites
-
-
-
-= Fragementation
-
-5.1
-Fragementation is when there are used and free memory blocks mixed in with eachother.
-(There are some free, some used, some more free, etc.) Internal fragmentation is
-when this happens within a block when chunk.inUse < chunk.size. External Fragementation
-when the avalible memory is split up into section between blocks.
-
-5.2
 The initial top of the heap is 0x7f7a9e410000.
 Total blocks: 203 Free: 103 Used: 100
 Internal unused: total: 158364 average: 1583 smallest: 817 largest: 3967
