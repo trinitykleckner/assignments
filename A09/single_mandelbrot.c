@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
   clock_t t1 = clock();
   printf("Computed mandelbrot set (%d x %d) in %f seconds\n",size, size, (double)(t1-t0)/CLOCKS_PER_SEC);
   char filename[100];
-  sprintf(filename,"multi-mandelbrot-%d-%ld.ppm",size,time(0));
+  sprintf(filename,"mandelbrot-%d-%ld.ppm",size,time(0));
   printf("writing file: %s\n",filename);
   write_ppm(filename, image, size, size);
 
@@ -59,12 +59,6 @@ int main(int argc, char* argv[]) {
 
 
 struct ppm_pixel* make_one(struct ppm_pixel* pxls, int size, float xmin, float xmax, float ymin, float ymax, int maxIterations){
-  printf("Generating mandelbrot with size %dx%d\n", size, size);
-  printf("  X range = [%.4f,%.4f]\n", xmin, xmax);
-  printf("  Y range = [%.4f,%.4f]\n", ymin, ymax);
-
-  // todo: your work here
-  // generate pallet
 
   //creating color array
   struct ppm_pixel black;
@@ -97,13 +91,13 @@ struct ppm_pixel* make_one(struct ppm_pixel* pxls, int size, float xmin, float x
         iter ++;
       }
       if (iter < maxIterations){
-        pxls[i*size+j].red = palette[iter].red;
-        pxls[i*size+j].blue = palette[iter].blue;
-        pxls[i*size+j].green = palette[iter].green;
+        pxls[i+j*size].red = palette[iter].red;
+        pxls[i+j*size].blue = palette[iter].blue;
+        pxls[i+j*size].green = palette[iter].green;
       } else {
-        pxls[i*size+j].red = black.red;
-        pxls[i*size+j].green = black.green;
-        pxls[i*size+j].blue = black.blue;
+        pxls[i+size*j].red = black.red;
+        pxls[i+size*j].green = black.green;
+        pxls[i+size*j].blue = black.blue;
       }
     }
   }

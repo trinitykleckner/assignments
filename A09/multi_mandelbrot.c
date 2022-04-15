@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
   printf("  Y range = [%.4f,%.4f]\n", ymin, ymax);
 
   srand(time(0));
-
+  clock_t t0 = clock();
 
   int shmid;
   shmid = shmget(IPC_PRIVATE, sizeof(struct ppm_pixel) * size * size, 0644 | IPC_CREAT);
@@ -46,7 +46,6 @@ int main(int argc, char* argv[]) {
      perror("Error: cannot initialize shared memory\n");
      exit(1);
    }
-   clock_t t0 = clock();
 
    struct ppm_pixel* image;
    image = shmat(shmid, NULL, 0);
@@ -97,10 +96,9 @@ int main(int argc, char* argv[]) {
     int pid = wait(&status);
     printf("Child process complete: %d\n",pid);
   }
-  sleep(5);
+  
   clock_t t1 = clock();
-  printf("%ld, %ld", t0, t1);
-  printf("Computed mandelbrot set (%d x %d) in %f seconds\n",size, size, ((double)(t1-t0))/CLOCKS_PER_SEC);
+  printf("Computed mandelbrot set (%d x %d) in %f seconds\n",size, size, ((double)(clock()-t0))/CLOCKS_PER_SEC);
   char filename[100];
   sprintf(filename,"multi-mandelbrot-%d-%ld.ppm",size,time(0));
   printf("writing file: %s\n",filename);
