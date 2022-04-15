@@ -39,7 +39,6 @@ int main(int argc, char* argv[]) {
 
   srand(time(0));
 
-  clock_t t0 = clock();
 
   int shmid;
   shmid = shmget(IPC_PRIVATE, sizeof(struct ppm_pixel) * size * size, 0644 | IPC_CREAT);
@@ -47,6 +46,7 @@ int main(int argc, char* argv[]) {
      perror("Error: cannot initialize shared memory\n");
      exit(1);
    }
+   clock_t t0 = clock();
 
    struct ppm_pixel* image;
    image = shmat(shmid, NULL, 0);
@@ -58,34 +58,38 @@ int main(int argc, char* argv[]) {
   pid_t child = fork();
   if(child > 0){
     printf("Launched child process %d\n",child);
+    printf("%d) Sub-image block: cols (%d,%d) to rows (%d,%d)\n",child,0,size/2,0,size/2);
     pid_t child2 = fork();
     if(child2 > 0){
       printf("Launched child process %d\n",child2);
+      printf("%d) Sub-image block: cols (%d,%d) to rows (%d,%d)\n",child2,size/2,size,0,size/2);
       pid_t child3 = fork();
       if(child3 > 0){
         printf("Launched child process %d\n",child3);
+        printf("%d) Sub-image block: cols (%d,%d) to rows (%d,%d)\n",child3,0,size/2,size/2,size);
         pid_t child4 = fork();
         if (child4 > 0){
           printf("Launched child process %d\n",child4);
+          printf("%d) Sub-image block: cols (%d,%d) to rows (%d,%d)\n",child4,size/2,size,size/2,size);
         } else if(child4 == 0){
           make_one(image, size, size/2, size/2, xmin, xmax, ymin, ymax, maxIterations);
-          printf("Im the 4th child\n");
           exit(0);
+          printf("Child process complete: %d\n",child4);
         }
       } else {
         make_one(image, size, 0, size/2, xmin, xmax, ymin, ymax, maxIterations);
-        printf("Im the 3rd child\n");
         exit(0);
+        printf("Child process complete: %d\n",child3);
       }
     } else {
       make_one(image, size, size/2, 0, xmin, xmax, ymin, ymax, maxIterations);
-      printf("Im the 2nd child\n");
       exit(0);
+      printf("Child process complete: %d\n",child2);
     }
   } else {
     make_one(image, size, 0, 0, xmin, xmax, ymin, ymax, maxIterations);
-    printf("Im the 1st child\n");
     exit(0);
+    printf("Child process complete: %d\n",child);
   }
 
   for(int i=0; i<4; i++){
@@ -93,9 +97,10 @@ int main(int argc, char* argv[]) {
     int pid = wait(&status);
     printf("Child process complete: %d\n",pid);
   }
-
+  sleep(5);
   clock_t t1 = clock();
-  printf("Computed mandelbrot set (%d x %d) in %f seconds\n",size, size, (double)(t1-t0)/CLOCKS_PER_SEC);
+  printf("%ld, %ld", t0, t1);
+  printf("Computed mandelbrot set (%d x %d) in %f seconds\n",size, size, ((double)(t1-t0))/CLOCKS_PER_SEC);
   char filename[100];
   sprintf(filename,"multi-mandelbrot-%d-%ld.ppm",size,time(0));
   printf("writing file: %s\n",filename);
@@ -117,9 +122,6 @@ int main(int argc, char* argv[]) {
 
 
 struct ppm_pixel* make_one(struct ppm_pixel* pxls, int size, int row, int col, float xmin, float xmax, float ymin, float ymax, int maxIterations){
-  // todo: your work here
-  // generate pallet
-
   //creating color array
   struct ppm_pixel black;
   black.red = 0;
