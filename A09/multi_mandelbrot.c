@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
   }
   
   clock_t t1 = clock();
-  printf("Computed mandelbrot set (%d x %d) in %f seconds\n",size, size, ((double)(clock()-t0))/CLOCKS_PER_SEC);
+  printf("Computed mandelbrot set (%d x %d) in %f seconds\n",size, size, ((double)(t1-t0))/CLOCKS_PER_SEC);
   char filename[100];
   sprintf(filename,"multi-mandelbrot-%d-%ld.ppm",size,time(0));
   printf("writing file: %s\n",filename);
