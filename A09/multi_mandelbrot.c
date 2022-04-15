@@ -151,13 +151,13 @@ struct ppm_pixel* make_one(struct ppm_pixel* pxls, int size, int row, int col, f
         iter ++;
       }
       if (iter < maxIterations){
-        pxls[(i+row)*size+(j+col)].red = palette[iter].red;
-        pxls[(i+row)*size+(j+col)].blue = palette[iter].blue;
-        pxls[(i+row)*size+(j+col)].green = palette[iter].green;
+        pxls[(i+row)+(j+col)*size].red = palette[iter].red;
+        pxls[(i+row)+(j+col)*size].blue = palette[iter].blue;
+        pxls[(i+row)+(j+col)*size].green = palette[iter].green;
       } else {
-        pxls[(i+row)*size+(j+col)].red = black.red;
-        pxls[(i+row)*size+(j+col)].green = black.green;
-        pxls[(i+row)*size+(j+col)].blue = black.blue;
+        pxls[(i+row)+(j+col)*size].red = black.red;
+        pxls[(i+row)+(j+col)*size].green = black.green;
+        pxls[(i+row)+(j+col)*size].blue = black.blue;
       }
     }
   }
