@@ -9,7 +9,7 @@
 #include <sys/ipc.h>
 #include "read_ppm.h"
 
-struct ppm_pixel* make_one(struct ppm_pixel* pxls, int size, float xmin, float xmax, float ymin, float ymax, int maxIterations);
+struct ppm_pixel* make_one(struct ppm_pixel* pxls, int size, int rows, int cols, float xmin, float xmax, float ymin, float ymax, int maxIterations);
 
 int main(int argc, char* argv[]) {
   int size = 480;
@@ -37,16 +37,62 @@ int main(int argc, char* argv[]) {
   printf("  X range = [%.4f,%.4f]\n", xmin, xmax);
   printf("  Y range = [%.4f,%.4f]\n", ymin, ymax);
 
-  // todo: your code here
-  // generate pallet
-  // compute image
   srand(time(0));
 
   clock_t t0 = clock();
 
-  struct ppm_pixel* image;
-  image = malloc(sizeof(struct ppm_pixel)*size*size);
-  image = make_one(image, size, xmin, xmax, ymin, ymax, maxIterations);
+  int shmid;
+  shmid = shmget(IPC_PRIVATE, sizeof(struct ppm_pixel) * size * size, 0644 | IPC_CREAT);
+  if (shmid == -1) {
+     perror("Error: cannot initialize shared memory\n");
+     exit(1);
+   }
+
+   struct ppm_pixel* image;
+   image = shmat(shmid, NULL, 0);
+   if(image == (void*) -1){
+     perror("Error: cannot initialize image\n");
+     exit(1);
+   }
+
+  pid_t child = fork();
+  if(child > 0){
+    printf("Launched child process %d\n",child);
+    pid_t child2 = fork();
+    if(child2 > 0){
+      printf("Launched child process %d\n",child2);
+      pid_t child3 = fork();
+      if(child3 > 0){
+        printf("Launched child process %d\n",child3);
+        pid_t child4 = fork();
+        if (child4 > 0){
+          printf("Launched child process %d\n",child4);
+        } else if(child4 == 0){
+          make_one(image, size, size/2, size/2, xmin, xmax, ymin, ymax, maxIterations);
+          printf("Im the 4th child\n");
+          exit(0);
+        }
+      } else {
+        make_one(image, size, 0, size/2, xmin, xmax, ymin, ymax, maxIterations);
+        printf("Im the 3rd child\n");
+        exit(0);
+      }
+    } else {
+      make_one(image, size, size/2, 0, xmin, xmax, ymin, ymax, maxIterations);
+      printf("Im the 2nd child\n");
+      exit(0);
+    }
+  } else {
+    make_one(image, size, 0, 0, xmin, xmax, ymin, ymax, maxIterations);
+    printf("Im the 1st child\n");
+    exit(0);
+  }
+
+  for(int i=0; i<4; i++){
+    int status;
+    int pid = wait(&status);
+    printf("Child process complete: %d\n",pid);
+  }
 
   clock_t t1 = clock();
   printf("Computed mandelbrot set (%d x %d) in %f seconds\n",size, size, (double)(t1-t0)/CLOCKS_PER_SEC);
@@ -55,16 +101,22 @@ int main(int argc, char* argv[]) {
   printf("writing file: %s\n",filename);
   write_ppm(filename, image, size, size);
 
-  free(image);
-  image = NULL;
+  if(shmdt(image) == -1){
+    perror("Error: cannot detatch shared memory\n");
+    exit(1);
+  }
+
+  if(shmctl(shmid, IPC_RMID, 0) == -1){
+    perror("Error: cannot remove shared memory\n");
+    exit(1);
+  }
+
+
+  return 0;
 }
 
 
-struct ppm_pixel* make_one(struct ppm_pixel* pxls, int size, float xmin, float xmax, float ymin, float ymax, int maxIterations){
-  printf("Generating mandelbrot with size %dx%d\n", size, size);
-  printf("  X range = [%.4f,%.4f]\n", xmin, xmax);
-  printf("  Y range = [%.4f,%.4f]\n", ymin, ymax);
-
+struct ppm_pixel* make_one(struct ppm_pixel* pxls, int size, int row, int col, float xmin, float xmax, float ymin, float ymax, int maxIterations){
   // todo: your work here
   // generate pallet
 
@@ -82,10 +134,10 @@ struct ppm_pixel* make_one(struct ppm_pixel* pxls, int size, float xmin, float x
     palette[i].blue = rand() % 255;
   }
 
-  for(int i=0; i<size; i++){
-    for(int j=0; j<size; j++){
-      float xfrac =  (float)i/(float) size;
-      float yfrac = (float) j/ (float) size;
+  for(int i=0; i<size/2; i++){
+    for(int j=0; j<size/2; j++){
+      float xfrac =  (float)(i+row)/(float) size;
+      float yfrac = (float)(j+col)/ (float) size;
       float x0 = xmin + xfrac*(xmax-xmin);
       float y0 = ymin + yfrac*(ymax-ymin);
 
@@ -99,13 +151,13 @@ struct ppm_pixel* make_one(struct ppm_pixel* pxls, int size, float xmin, float x
         iter ++;
       }
       if (iter < maxIterations){
-        pxls[i*size+j].red = palette[iter].red;
-        pxls[i*size+j].blue = palette[iter].blue;
-        pxls[i*size+j].green = palette[iter].green;
+        pxls[(i+row)*size+(j+col)].red = palette[iter].red;
+        pxls[(i+row)*size+(j+col)].blue = palette[iter].blue;
+        pxls[(i+row)*size+(j+col)].green = palette[iter].green;
       } else {
-        pxls[i*size+j].red = black.red;
-        pxls[i*size+j].green = black.green;
-        pxls[i*size+j].blue = black.blue;
+        pxls[(i+row)*size+(j+col)].red = black.red;
+        pxls[(i+row)*size+(j+col)].green = black.green;
+        pxls[(i+row)*size+(j+col)].blue = black.blue;
       }
     }
   }
