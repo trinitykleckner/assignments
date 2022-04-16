@@ -98,13 +98,13 @@ int main(int argc, char* argv[]) {
     int pid = wait(&status);
     printf("Child process complete: %d\n",pid);
   }
- 
+
    gettimeofday(&end, NULL);
    secs = end.tv_sec - start.tv_sec;
    usecs = end.tv_usec - start.tv_usec;
    mtime = ((secs)*1000 + usecs/1000.0) + 0.5;
 
-   printf("Computed mandelbrot set (%d x %d) in %ld seconds\n",size, size, mtime); //((double)(t1-t0))/CLOCKS_PER_SEC);
+   printf("Computed mandelbrot set (%d x %d) in %f seconds\n",size, size, mtime*0.001); 
   char filename[100];
   sprintf(filename,"multi-mandelbrot-%d-%ld.ppm",size,time(0));
   printf("writing file: %s\n",filename);
