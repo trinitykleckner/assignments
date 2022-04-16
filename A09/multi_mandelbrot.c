@@ -38,7 +38,9 @@ int main(int argc, char* argv[]) {
   printf("  Y range = [%.4f,%.4f]\n", ymin, ymax);
 
   srand(time(0));
-  clock_t t0 = clock();
+  struct timeval start, end;
+  long mtime, secs, usecs;
+  gettimeofday(&start, NULL);
 
   int shmid;
   shmid = shmget(IPC_PRIVATE, sizeof(struct ppm_pixel) * size * size, 0644 | IPC_CREAT);
@@ -96,9 +98,13 @@ int main(int argc, char* argv[]) {
     int pid = wait(&status);
     printf("Child process complete: %d\n",pid);
   }
-  
-  clock_t t1 = clock();
-  printf("Computed mandelbrot set (%d x %d) in %f seconds\n",size, size, ((double)(t1-t0))/CLOCKS_PER_SEC);
+ 
+   gettimeofday(&end, NULL);
+   secs = end.tv_sec - start.tv_sec;
+   usecs = end.tv_usec - start.tv_usec;
+   mtime = ((secs)*1000 + usecs/1000.0) + 0.5;
+
+   printf("Computed mandelbrot set (%d x %d) in %ld seconds\n",size, size, mtime); //((double)(t1-t0))/CLOCKS_PER_SEC);
   char filename[100];
   sprintf(filename,"multi-mandelbrot-%d-%ld.ppm",size,time(0));
   printf("writing file: %s\n",filename);
