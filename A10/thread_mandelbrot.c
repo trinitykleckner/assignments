@@ -10,7 +10,7 @@
 struct t_arg{
   int *array;
   struct ppm_pixel* image;
-  struct ppm_pixel* pallete;
+  struct ppm_pixel* palette;
   int size;
   int row;
   int col;
@@ -28,16 +28,16 @@ void *thread_count(void* args) {
   int myid, i, row, col;
   myid = *((int*) args);
 
-  struct ppm_pixel* palette;
-  palette = malloc(sizeof(struct ppm_pixel)*myargs->maxIterations);
-  for(int i = 0; i < myargs->maxIterations; i++){
-    palette[i].red = rand() % 255;
-    palette[i].green = rand() % 255;
-    palette[i].blue = rand() % 255;
-  }
+  // struct ppm_pixel* palette;
+  // palette = malloc(sizeof(struct ppm_pixel)*myargs->maxIterations);
+  // for(int i = 0; i < myargs->maxIterations; i++){
+  //   palette[i].red = rand() % 255;
+  //   palette[i].green = rand() % 255;
+  //   palette[i].blue = rand() % 255;
+  // }
 
   printf("Thread %lu) sub-image blocks: cols (%d,%d) to rows (%d,%d)\n", pthread_self(), myargs->row, myargs->size/2, myargs->col, myargs->size/2);
-  make_one(myargs->image, palette, myargs->size, myargs->row, myargs->col, myargs->xmin, myargs->xmax, myargs->ymin, myargs->ymax, myargs->maxIterations);
+  make_one(myargs->image, myargs->palette, myargs->size, myargs->row, myargs->col, myargs->xmin, myargs->xmax, myargs->ymin, myargs->ymax, myargs->maxIterations);
   printf("Thread %lu) finished %d\n",pthread_self(), myid);
   return (void *)0;
 }
@@ -79,8 +79,17 @@ int main(int argc, char* argv[]) {
   struct ppm_pixel* image;
   image = malloc(sizeof(struct ppm_pixel)*size*size);
 
+  struct ppm_pixel* palette;
+  palette = malloc(sizeof(struct ppm_pixel)*maxIterations);
+  for(int i = 0; i < maxIterations; i++){
+    palette[i].red = rand() % 255;
+    palette[i].green = rand() % 255;
+    palette[i].blue = rand() % 255;
+  }
+
   for (int i=0; i<numProcesses; i++){
     thread_args[i].array = &ids[i];
+    thread_args[i].palette = palette;
     thread_args[i].image = image;
     thread_args[i].size = size;
     thread_args[i].xmin = xmin;
@@ -109,6 +118,8 @@ int main(int argc, char* argv[]) {
   printf("writing file: %s\n",filename);
   write_ppm(filename, image, size, size);
 
+  free(palette);
+  palette = NULL;
   free(thread_args);
   thread_args = NULL;
   free(image);
@@ -151,7 +162,7 @@ struct ppm_pixel* make_one(struct ppm_pixel* pxls, struct ppm_pixel* palette, in
       }
     }
   }
-  free(palette);
-  palette = NULL;
+  //free(palette);
+  //palette = NULL;
   return pxls;
 }
