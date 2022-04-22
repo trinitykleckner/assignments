@@ -1,3 +1,4 @@
+//a second try, with just one start routine
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -27,24 +28,22 @@ struct t_arg{
   int maxIterations;
 };
 
-struct ppm_pixel* make_one(struct ppm_pixel* pxls, struct ppm_pixel* palette, int size, int row, int col, float xmin, float xmax, float ymin, float ymax, int maxIterations);
-
-
-void *detMembership(void* args){
+void *start_routine(void* args){
   struct t_arg * this = (struct t_arg *) args;
-  int i, row, col;
+  float xfrac, yfrac, x0, y0, x, y, myid;
+  myid = *((int*) args);
 
   printf("Thread %lu) sub-image blocks: cols (%d,%d) to rows (%d,%d)\n", pthread_self(), this->row, this->row+this->size/2, this->col, this->col+this->size/2);
 
-  for(int i=0; i<this->size/2; i++){
-    for(int j=0; j<this->size/2; j++){
-      float xfrac =  (float)(i+this->row)/(float) this->size;
-      float yfrac = (float)(j+this->col)/ (float) this->size;
-      float x0 = this->xmin + xfrac*(this->xmax-this->xmin);
-      float y0 = this->ymin + yfrac*(this->ymax-this->ymin);
+  for(int i = 0; i < this->size/2; i++){ //rownum
+    for(int j = 0; j < this->size/2; j++){
+      xfrac =  (float)(i+this->row)/(float) this->size;
+      yfrac = (float)(j+this->col)/ (float) this->size;
+      x0 = this->xmin + xfrac*(this->xmax-this->xmin);
+      y0 = this->ymin + yfrac*(this->ymax-this->ymin);
 
-      float x=0;
-      float y=0;
+      x=0;
+      y=0;
       int iter = 0;
       while(iter < this->maxIterations && x*x + y*y < 2*2){
         float xtmp = x*x - y*y + x0;
@@ -52,7 +51,6 @@ void *detMembership(void* args){
         x = xtmp;
         iter ++;
       }
-
       if(iter < this->maxIterations){
         this->member[(i+this->row)*this->size+(j+this->col)] = 0;
       } else {
@@ -60,75 +58,67 @@ void *detMembership(void* args){
       }
     }
   }
-  return (void *)0;
-}
-
-void *compVisits(void* args){
-  struct t_arg * this = (struct t_arg *) args;
-  int i, row, col;
-  int allCount = 0;
-
-  for(int i=0; i<this->size/2; i++){
-    for(int j=0; j<this->size/2; j++){
+  printf("finished part 1\n");
+  int inCount = 0;
+  for(int i = 0; i < this->size/2; i++){
+    for(int j = 0; j < this->size/2; j++){
+      printf("on iteration: %d\n",i*this->size+j);
       if(this->member[(i+this->row)*this->size+(j+this->col)] == 1){
-        float xfrac =  (float)(i+this->row)/(float) this->size;
-        float yfrac = (float)(j+this->col)/ (float) this->size;
-        float x0 = this->xmin + xfrac*(this->xmax-this->xmin);
-        float y0 = this->ymin + yfrac*(this->ymax-this->ymin);
+        printf("in part 2 if\n");
+        xfrac =  (float)(i+this->row)/(float) this->size;
+        yfrac = (float)(j+this->col)/ (float) this->size;
+        x0 = this->xmin + xfrac*(this->xmax - this->xmin);
+        y0 = this->ymin + yfrac*(this->ymax - this->ymin);
 
-        float x=0;
-        float y=0;
+        x = 0;
+        y = 0;
         while(x*x + y*y < 2*2){
           float xtmp = x*x - y*y + x0;
           y = 2*x*y + y0;
           x = xtmp;
+          printf("x = %f, y=%f, thing = %f\n",x,y,x*x + y*y);
 
-          float yrow = this->size*(y-this->ymin)/(this->ymax-this->ymin); //need to round this
-          float xcol = this->size*(x-this->xmin)/(this->xmax-this->xmin); //and this
-          if(yrow > 0 || yrow < this->size){
-            if(xcol > 0 || xcol < this->size){
-                this->counts[(j+this->row)+(i+this->col)*this->size] ++;
-                allCount ++;
-                //printf("%d\n",allCount);
-            }
-          }
+          int yrow = (int) (this->size*(y-this->ymin)/(this->ymax-this->ymin)); //need to round this
+          int xcol = (int) (this->size*(x-this->xmin)/(this->xmax-this->xmin)); //and this
+          printf("xcol- %d\n",xcol);
+          if(yrow < 0 || yrow >= this->size){continue;}
+          if(xcol < 0 || xcol >= this->size){continue;}
+          this->counts[(i+this->row)*this->size+(j+this->col)] += 1;
+          inCount++;
+          // if(yrow > 0 && yrow < this->size){
+          //   if(xcol > 0 && xcol < this->size){
+          //     printf("in double if\n");
+          //     this->counts[(i+this->row)*this->size+(j+this->col)] ++;
+          //     inCount++;
+          //   }
+          // }
         }
       }
     }
   }
-  //printf("%ld\n",pthread_self());
-  //printf("\n\n\n %d\n\n",allCount);
-
   pthread_mutex_lock(&mutex);
-  maxCount += allCount;
+  maxCount += inCount;
   pthread_mutex_unlock(&mutex);
-  return (void *)0;
-}
-
-void *compColors(void* args){
-  struct t_arg * this = (struct t_arg *) args;
-  int myid, i, row, col;
-  myid = *((int*) args);
+  printf("finished part 2\n");
   float gamma = 0.681;
   float factor = 1/gamma;
-  for(int i=0; i<this->size/2; i++){
-    for(int j=0; j<this->size/2; j++){
-      double value = 0;
-      //printf("%d\n",(j+this->row)+(i+this->col)*this->size);
+  for(int i = 0; i < this->size/2; i++){
+    for(int j = 0; j < this->size/2; j++){
+      float value = 0;
+
       if(this->counts[(i+this->row)*this->size+(j+this->col)] > 0){
-        printf("HERE");
-        value = log(this->counts[(i+this->row)*this->size+(j+this->col)])/log(maxCount);
-        value = pow(value,factor);
+        value = log(this->counts[(i+this->row)*this->size+(j+this->col)]) / log(maxCount);
+        value = pow(value, factor);
       }
-      this->image[(i+this->row)*this->size+(j+this->col)].red = value*255;
-      this->image[(i+this->row)*this->size+(j+this->col)].blue = value*255;
-      this->image[(i+this->row)*this->size+(j+this->col)].green = value*255;
-      //printf("here- %f",value*255);
+      this->image[(i+this->row)*this->size+(j+this->col)].red = value * 255;
+      this->image[(i+this->row)*this->size+(j+this->col)].green = value * 255;
+      this->image[(i+this->row)*this->size+(j+this->col)].blue = value * 255;
     }
   }
-  printf("Thread %lu) finished %d\n",pthread_self(), myid);
-  return (void *)0;
-}
+  printf("%d %d %d %d %d \n",this->counts[0], this->counts[1], this->counts[2], this->counts[5], this->counts[10]);
+  printf("Thread %lu) finished %f\n",pthread_self(), myid);
+  return(void *)0;
+} //end function
 
 
 int main(int argc, char* argv[]) {
@@ -138,7 +128,7 @@ int main(int argc, char* argv[]) {
   float ymin = -1.12;
   float ymax = 1.12;
   int maxIterations = 1000;
-  int numProcesses = 4;
+  int numProcesses = 1;
 
   int opt;
   while ((opt = getopt(argc, argv, ":s:l:r:t:b:p:")) != -1) {
@@ -201,9 +191,7 @@ int main(int argc, char* argv[]) {
   pthread_mutex_init(&mutex, NULL);
   for(int i=0; i<numProcesses; i++){
     ids[i] = i;
-    pthread_create(&threads[i], NULL, detMembership, &thread_args[i]);
-    pthread_create(&threads[i], NULL, compVisits, &thread_args[i]);
-    pthread_create(&threads[i], NULL, compColors, &thread_args[i]);
+    pthread_create(&threads[i], NULL, start_routine, &thread_args[i]);
   }
 
   for (int i = 0; i < numProcesses; i++) {
@@ -217,45 +205,7 @@ int main(int argc, char* argv[]) {
   char filename[100];
   sprintf(filename,"buddhabrot-%d-%ld.ppm",size,time(0));
   printf("writing file: %s\n",filename);
-  write_ppm(filename, image, size, size);
+  //write_ppm(filename, image, size, size);
 
   return 0;
-}
-
-
-struct ppm_pixel* make_one(struct ppm_pixel* pxls, struct ppm_pixel* palette, int size, int row, int col, float xmin, float xmax, float ymin, float ymax, int maxIterations){
-  //creating color array
-  struct ppm_pixel black;
-  black.red = 0;
-  black.green = 0;
-  black.blue = 0;
-
-  for(int i=0; i<size/2; i++){
-    for(int j=0; j<size/2; j++){
-      float xfrac =  (float)(i+row)/(float) size;
-      float yfrac = (float)(j+col)/ (float) size;
-      float x0 = xmin + xfrac*(xmax-xmin);
-      float y0 = ymin + yfrac*(ymax-ymin);
-
-      float x=0;
-      float y=0;
-      int iter = 0;
-      while(iter < maxIterations && x*x + y*y < 2*2){
-        float xtmp = x*x - y*y + x0;
-        y = 2*x*y + y0;
-        x = xtmp;
-        iter ++;
-      }
-      if (iter < maxIterations){
-        pxls[(i+row)+(j+col)*size].red = palette[iter].red;
-        pxls[(i+row)+(j+col)*size].blue = palette[iter].blue;
-        pxls[(i+row)+(j+col)*size].green = palette[iter].green;
-      } else {
-        pxls[(i+row)+(j+col)*size].red = black.red;
-        pxls[(i+row)+(j+col)*size].green = black.green;
-        pxls[(i+row)+(j+col)*size].blue = black.blue;
-      }
-    }
-  }
-  return pxls;
 }
