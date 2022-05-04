@@ -55,11 +55,11 @@ void fragstats(void* buffers[], int len) {
   //int used = 0;
   int free = 0;
   int eUtotal = 0;
-  int eUaverage = 0;
+  float eUaverage = 0;
   int eUbig = 0;
   int eUsmall = 999999999;
   int iUtotal = 0;
-  int iUaverage = 0;
+  float iUaverage = 0;
   int iUbig = 0;
   int iUsmall = 999999999;
 
@@ -77,7 +77,7 @@ void fragstats(void* buffers[], int len) {
     }
     next = next->next;
   }
-  eUaverage = eUtotal/free;
+  eUaverage = (float) eUtotal/free;
 
   for(int i=0; i<len-1; i++){
     if(buffers[i] != NULL){
@@ -89,10 +89,10 @@ void fragstats(void* buffers[], int len) {
       if(cnk->inUse < iUsmall){
         iUsmall = cnk->inUse;
       }
-      iUaverage = iUtotal/len;
+      iUaverage = (float) iUtotal/len;
     }
   }
   printf("Total blocks: %d Free: %d Used: %d\n",len+free, free, len);
-  printf("Internal unused: total: %d average: %d smallest: %d largest: %d\n",iUtotal,iUaverage,iUsmall,iUbig);
-  printf("External unused: total: %d average: %d smallest: %d largest: %d\n",eUtotal,eUaverage,eUsmall,eUbig);
+  printf("Internal unused: total: %d average: %f smallest: %d largest: %d\n",iUtotal,iUaverage,iUsmall,iUbig);
+  printf("External unused: total: %d average: %f smallest: %d largest: %d\n",eUtotal,eUaverage,eUsmall,eUbig);
 }

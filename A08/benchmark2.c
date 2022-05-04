@@ -8,6 +8,9 @@
 #define ROUNDS 10
 #define BUFFER 100
 #define LOOP 100000
+// #define ROUNDS 2
+// #define BUFFER 100
+// #define LOOP 10000
 
 extern void fragstats(void* buffer[], int len);
 
@@ -29,14 +32,14 @@ int main ( int argc, char* argv[]) {
         free(buffer[index]);
         buffer[index] = NULL;
       } else {
-        size_t size = (size_t) randExp(8, 4000); 
+        size_t size = (size_t) randExp(8, 4000);
         int *memory = NULL;
         memory = malloc(size);
 
         if (memory == NULL) {
           fprintf(stderr, "malloc failed\n");
           return(1);
-        } 
+        }
         *memory = 123;
         buffer[index] = memory;
       }
@@ -50,7 +53,7 @@ int main ( int argc, char* argv[]) {
   }
 
   for (int i = 0; i < BUFFER; i++) {
-    free(buffer[i]); 
+    free(buffer[i]);
   }
   return 0 ;
 }
