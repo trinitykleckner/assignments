@@ -62,6 +62,7 @@ void fragstats(void* buffers[], int len) {
   float iUaverage = 0;
   int iUbig = 0;
   int iUsmall = 999999999;
+  int chunkCount = 0;
 
   struct chunk *next = flist;
 
@@ -81,6 +82,7 @@ void fragstats(void* buffers[], int len) {
 
   for(int i=0; i<len-1; i++){
     if(buffers[i] != NULL){
+      chunkCount ++;
       struct chunk *cnk = (struct chunk*)((struct chunk*)buffers[i]-1);
       iUtotal += cnk->inUse;
       if(cnk->inUse > iUbig){
@@ -89,10 +91,10 @@ void fragstats(void* buffers[], int len) {
       if(cnk->inUse < iUsmall){
         iUsmall = cnk->inUse;
       }
-      iUaverage = (float) iUtotal/len;
+      iUaverage = (float) iUtotal/chunkCount;
     }
   }
-  printf("Total blocks: %d Free: %d Used: %d\n",len+free, free, len);
+  printf("Total blocks: %d Free: %d Used: %d\n",len+free, free, chunkCount);
   printf("Internal unused: total: %d average: %f smallest: %d largest: %d\n",iUtotal,iUaverage,iUsmall,iUbig);
   printf("External unused: total: %d average: %f smallest: %d largest: %d\n",eUtotal,eUaverage,eUsmall,eUbig);
 }
