@@ -24,7 +24,7 @@ void *malloc (size_t size) {
         flist = next->next;
       }
       next->inUse = size;
-      
+
       return (void*)(next+1);
     } else {
       prev = next;
@@ -85,12 +85,12 @@ void fragstats(void* buffers[], int len) {
     if(buffers[i] != NULL){
       chunkCount ++;
       struct chunk *cnk = (struct chunk*)((struct chunk*)buffers[i]-1);
-      iUtotal += cnk->inUse;
-      if(cnk->inUse > iUbig){
-        iUbig = cnk->inUse;
+      iUtotal += cnk->size - cnk->inUse;
+      if((cnk->size - cnk->inUse) > iUbig){
+        iUbig = cnk->size - cnk->inUse;
       }
-      if(cnk->inUse < iUsmall){
-        iUsmall = cnk->inUse;
+      if((cnk->size - cnk->inUse) < iUsmall){
+        iUsmall = cnk->size - cnk->inUse;
       }
       iUaverage = (float) iUtotal/chunkCount;
     }
