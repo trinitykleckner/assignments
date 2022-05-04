@@ -13,13 +13,13 @@ processors, size of RAM? (use `lscpu` and `free -m`)
 
 In `simple.c`, where does the increase in 1040 bytes come from?
 Why is the value 1040 bytes?
-I got x1018 or 4120 bytes, it comes from the print statement. By taking out the
-print statement in between the sbrk calls, you get 0 bytes difference.
+I got x1018 or 4120 bytes. 4104 from the print statement, and 16 from malloc chunck struct.
+By taking out the print statement in between the sbrk calls, you get 0 bytes difference.
 
 How many bytes does `mylloc_list.c` allocate when the program ends? Explain why
 this amount makes sense.
-4244 bites or 124 more than before/without the print statement. This makes sense
-because alloc changes the heap.
+4244 bites or 124 more than before. 100 for malloc, and 16 more for a chunk (now 2 chunks)
+This makes sense because alloc changes the heap.
 
 
 
