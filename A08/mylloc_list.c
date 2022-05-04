@@ -79,7 +79,7 @@ void fragstats(void* buffers[], int len) {
     }
     next = next->next;
   }
-  eUaverage = (float) eUtotal/free;
+  eUaverage = eUtotal/free;
 
   for(int i=0; i<len; i++){
     if(buffers[i] != NULL){
@@ -92,7 +92,7 @@ void fragstats(void* buffers[], int len) {
       if((cnk->size - cnk->inUse) < iUsmall){
         iUsmall = cnk->size - cnk->inUse;
       }
-      iUaverage = (float) iUtotal/chunkCount;
+      iUaverage = iUtotal/chunkCount;
     }
   }
   printf("Total blocks: %d Free: %d Used: %d\n",len+free, free, chunkCount);
