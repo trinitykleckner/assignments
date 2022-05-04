@@ -96,6 +96,6 @@ void fragstats(void* buffers[], int len) {
     }
   }
   printf("Total blocks: %d Free: %d Used: %d\n",len+free, free, chunkCount);
-  printf("Internal unused: total: %d average: %f smallest: %d largest: %d\n",iUtotal,iUaverage,iUsmall,iUbig);
-  printf("External unused: total: %d average: %f smallest: %d largest: %d\n",eUtotal,eUaverage,eUsmall,eUbig);
+  printf("Internal unused: total: %d average: %0.1f smallest: %d largest: %d\n",iUtotal,iUaverage,iUsmall,iUbig);
+  printf("External unused: total: %d average: %0.1f smallest: %d largest: %d\n",eUtotal,eUaverage,eUsmall,eUbig);
 }
